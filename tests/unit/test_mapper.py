@@ -72,7 +72,7 @@ class TestRunReturnsCodeGraph:
             result = agent.run(repo_target)
 
         assert isinstance(result, CodeGraph), "run() must return a CodeGraph"
-        assert result.target == repo_target
+        assert result.repo_target == repo_target
         assert result.nodes == fake_nodes
         assert result.edges == fake_edges
 
@@ -165,13 +165,13 @@ class TestParseFileExtractsFunctions:
         source_file = tmp_path / "sample.py"
         source_file.write_text(snippet, encoding="utf-8")
 
-        nodes = agent._parse_file(source_file)
+        nodes, edges = agent._parse_file(source_file, source_file.parent)
 
         required_fields = {"id", "type", "name", "file", "start_line", "end_line"}
         assert nodes, "Expected at least one node from the parsed snippet"
 
         for node in nodes:
-            missing = required_fields - node.keys()
+            missing = required_fields - set(node.keys())
             assert not missing, f"Node missing fields: {missing} — node: {node}"
 
         names = {n["name"] for n in nodes}
